@@ -1,6 +1,8 @@
 "use client"
 
 import { useState } from "react"
+import Link from "next/link"
+import { usePathname } from "next/navigation"
 import {
   LayoutDashboard,
   Brain,
@@ -19,31 +21,35 @@ import {
 import { cn } from "@/lib/utils"
 
 interface SidebarProps {
-  activeItem: string
-  onItemClick: (item: string) => void
   collapsed: boolean
   onToggle: () => void
   t: Record<string, string>
 }
 
 const navItems = [
-  { key: "dashboard", icon: LayoutDashboard, hasSubmenu: false },
-  { key: "riskEngine", icon: Brain, hasSubmenu: true },
-  { key: "heatmap", icon: Map, hasSubmenu: true },
-  { key: "resources", icon: Package, hasSubmenu: true },
-  { key: "shelters", icon: Home, hasSubmenu: true },
-  { key: "simulation", icon: Activity, hasSubmenu: true },
-  { key: "alerts", icon: Bell, hasSubmenu: false },
-  { key: "history", icon: Clock, hasSubmenu: false },
+  { key: "dashboard", icon: LayoutDashboard, href: "/dashboard" },
+  { key: "riskEngine", icon: Brain, href: "/dashboard/risk-engine" },
+  { key: "heatmap", icon: Map, href: "/dashboard/heatmap" },
+  { key: "resources", icon: Package, href: "/dashboard/resources" },
+  { key: "shelters", icon: Home, href: "/dashboard/shelters" },
+  { key: "simulation", icon: Activity, href: "/dashboard/simulation" },
+  { key: "alerts", icon: Bell, href: "/dashboard/alerts" },
+  { key: "history", icon: Clock, href: "/dashboard/history" },
 ]
 
 const bottomItems = [
-  { key: "offlineMode", icon: WifiOff },
-  { key: "settings", icon: Settings },
+  { key: "offlineMode", icon: WifiOff, href: "/dashboard/offline" },
+  { key: "settings", icon: Settings, href: "/dashboard/settings" },
 ]
 
-export function Sidebar({ activeItem, onItemClick, collapsed, onToggle, t }: SidebarProps) {
+export function Sidebar({ collapsed, onToggle, t }: SidebarProps) {
   const [hoveredItem, setHoveredItem] = useState<string | null>(null)
+  const pathname = usePathname()
+
+  const isActive = (href: string) => {
+    if (href === "/dashboard") return pathname === "/dashboard"
+    return pathname.startsWith(href)
+  }
 
   return (
     <aside
@@ -69,36 +75,34 @@ export function Sidebar({ activeItem, onItemClick, collapsed, onToggle, t }: Sid
       <nav className="flex-1 py-2 px-2 space-y-1 overflow-y-auto scrollbar-thin">
         {navItems.map((item) => {
           const Icon = item.icon
-          const isActive = activeItem === item.key
+          const active = isActive(item.href)
           return (
-            <button
+            <Link
               key={item.key}
-              onClick={() => onItemClick(item.key)}
+              href={item.href}
               onMouseEnter={() => setHoveredItem(item.key)}
               onMouseLeave={() => setHoveredItem(null)}
               className={cn(
-                "flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm transition-all duration-200 group",
-                isActive
+                "flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm transition-all duration-200 group relative",
+                active
                   ? "bg-primary/15 text-primary font-semibold"
                   : "text-muted-foreground hover:bg-secondary hover:text-foreground"
               )}
             >
-              <Icon className={cn("w-[18px] h-[18px] shrink-0", isActive && "text-primary")} />
+              <Icon className={cn("w-[18px] h-[18px] shrink-0", active && "text-primary")} />
               {!collapsed && (
                 <>
                   <span className="flex-1 text-left truncate">{t[item.key]}</span>
-                  {item.hasSubmenu && (
-                    <ChevronRight
-                      className={cn(
-                        "w-3.5 h-3.5 transition-opacity",
-                        hoveredItem === item.key ? "opacity-100" : "opacity-0"
-                      )}
-                    />
-                  )}
+                  <ChevronRight
+                    className={cn(
+                      "w-3.5 h-3.5 transition-opacity",
+                      hoveredItem === item.key ? "opacity-100" : "opacity-0"
+                    )}
+                  />
                 </>
               )}
-              {isActive && <span className="absolute right-0 w-[3px] h-6 bg-primary rounded-l" />}
-            </button>
+              {active && <span className="absolute right-0 w-[3px] h-6 bg-primary rounded-l" />}
+            </Link>
           )
         })}
       </nav>
@@ -107,21 +111,21 @@ export function Sidebar({ activeItem, onItemClick, collapsed, onToggle, t }: Sid
       <div className="border-t border-border px-2 py-2 space-y-1">
         {bottomItems.map((item) => {
           const Icon = item.icon
-          const isActive = activeItem === item.key
+          const active = isActive(item.href)
           return (
-            <button
+            <Link
               key={item.key}
-              onClick={() => onItemClick(item.key)}
+              href={item.href}
               className={cn(
                 "flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm transition-all duration-200",
-                isActive
+                active
                   ? "bg-primary/15 text-primary font-semibold"
                   : "text-muted-foreground hover:bg-secondary hover:text-foreground"
               )}
             >
               <Icon className="w-[18px] h-[18px] shrink-0" />
               {!collapsed && <span className="truncate">{t[item.key]}</span>}
-            </button>
+            </Link>
           )
         })}
 

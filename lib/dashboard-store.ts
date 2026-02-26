@@ -42,6 +42,25 @@ export interface StateRisk {
   y: number
 }
 
+export interface WeatherData {
+  temperature: number
+  humidity: number
+  rainfall: number
+  windSpeed: number
+  condition: string
+  area: string
+  updatedAt: string
+}
+
+export interface AnalysisInput {
+  area: string
+  rainfall: number
+  elevation: number
+  population: number
+  coastalDistance: number
+  disasterIntensity: number
+}
+
 export interface HistoryEntry {
   id: string
   date: string
@@ -265,50 +284,85 @@ export const translations: Record<string, Record<string, string>> = {
     analyzeRisk: "जोखिम विश्लेषण",
   },
   ta: {
-    dashboard: "டாஷ்போர்ட்",
-    riskEngine: "இடர் இயந்திரம்",
-    heatmap: "வெப்ப வரைபடம்",
-    resources: "வளங்கள்",
-    shelters: "தங்குமிடங்கள்",
-    simulation: "உருவகப்படுத்தல்",
-    alerts: "எச்சரிக்கைகள்",
-    history: "வரலாறு",
-    offlineMode: "ஆஃப்லைன் பயன்முறை",
-    settings: "அமைப்புகள்",
-    overallRiskScore: "ஒட்டுமொத்த இடர் மதிப்பெண்",
-    decisionConfidence: "முடிவு நம்பிக்கை",
-    goldenHourIndex: "கோல்டன் அவர் குறியீடு",
-    safeZones: "பாதுகாப்பான பகுதிகள்",
-    highRiskZones: "அதிக ஆபத்து பகுதிகள்",
-    actNow: "இப்போது செயல்படுங்கள்!",
-    indiaRiskHeatmap: "இந்தியா இடர் வெப்ப வரைபடம்",
-    quickAlerts: "விரைவு எச்சரிக்கைகள்",
-    viewAll: "அனைத்தும் பார்",
-    actionPlan: "செயல் திட்டம் (AI உருவாக்கியது)",
-    executePlan: "திட்டத்தை செயல்படுத்து",
-    resourceAllocation: "வள ஒதுக்கீடு",
-    autoOptimize: "தானியங்கி-மேம்படுத்து",
-    shelterRecommendation: "தங்குமிட பரிந்துரை",
-    whatIfSimulation: "என்றால்-என்ன உருவகப்படுத்தல்",
-    riskProjection: "இடர் கணிப்பு",
-    current: "தற்போதைய",
-    after: "பின்",
-    systemStatus: "சிஸ்டம் நிலை",
-    allSystems: "அனைத்து அமைப்புகள்",
-    operational: "செயல்பாட்டில்",
-    searchPlaceholder: "பகுதி தேடு / பகுப்பாய்வு...",
-    commandCenter: "கட்டளை மையம்",
-    online: "ஆன்லைன்",
-    offline: "ஆஃப்லைன்",
-    low: "குறைவு",
-    medium: "நடுத்தர",
-    high: "அதிக",
-    critical: "தீவிர",
-    shelterName: "தங்குமிட பெயர்",
-    capacity: "திறன்",
-    safety: "பாதுகாப்பு",
-    distance: "தூரம்",
-    sendAlert: "எச்சரிக்கை அனுப்பு",
-    analyzeRisk: "இடர் பகுப்பாய்வு",
+    dashboard: "Dashboard",
+    riskEngine: "Risk Engine",
+    heatmap: "Heatmap",
+    resources: "Resources",
+    shelters: "Shelters",
+    simulation: "Simulation",
+    alerts: "Alerts",
+    history: "History",
+    offlineMode: "Offline Mode",
+    settings: "Settings",
+    overallRiskScore: "Overall Risk Score",
+    decisionConfidence: "Decision Confidence",
+    goldenHourIndex: "Golden Hour Index",
+    safeZones: "Safe Zones",
+    highRiskZones: "High Risk Zones",
+    actNow: "Act Now!",
+    indiaRiskHeatmap: "India Risk Heatmap",
+    quickAlerts: "Quick Alerts",
+    viewAll: "View All",
+    actionPlan: "Action Plan (AI Generated)",
+    executePlan: "Execute Plan",
+    resourceAllocation: "Resource Allocation",
+    autoOptimize: "Auto-Optimize",
+    shelterRecommendation: "Shelter Recommendation",
+    whatIfSimulation: "What-if Simulation",
+    riskProjection: "Risk Projection",
+    current: "Current",
+    after: "After",
+    systemStatus: "System Status",
+    allSystems: "All Systems",
+    operational: "Operational",
+    searchPlaceholder: "Search Zone / Analyze...",
+    commandCenter: "Command Center",
+    online: "Online",
+    offline: "Offline",
+    low: "Low",
+    medium: "Medium",
+    high: "High",
+    critical: "Critical",
+    shelterName: "Shelter Name",
+    capacity: "Capacity",
+    safety: "Safety",
+    distance: "Distance",
+    sendAlert: "Send Alert",
+    analyzeRisk: "Analyze Risk",
   },
 }
+
+export const initialHistory: HistoryEntry[] = [
+  { id: "h1", date: "2026-02-26 14:30", area: "Bihar - Patna", riskLevel: "critical", riskScore: 89, confidence: 92 },
+  { id: "h2", date: "2026-02-26 12:15", area: "Assam - Guwahati", riskLevel: "critical", riskScore: 85, confidence: 88 },
+  { id: "h3", date: "2026-02-25 09:45", area: "Odisha - Bhubaneswar", riskLevel: "high", riskScore: 72, confidence: 90 },
+  { id: "h4", date: "2026-02-24 16:20", area: "Maharashtra - Mumbai", riskLevel: "high", riskScore: 70, confidence: 85 },
+  { id: "h5", date: "2026-02-23 11:00", area: "Gujarat - Surat", riskLevel: "medium", riskScore: 45, confidence: 94 },
+  { id: "h6", date: "2026-02-22 08:30", area: "Tamil Nadu - Chennai", riskLevel: "medium", riskScore: 48, confidence: 91 },
+  { id: "h7", date: "2026-02-21 15:45", area: "Kerala - Kochi", riskLevel: "low", riskScore: 30, confidence: 96 },
+]
+
+export const initialWeather: WeatherData = {
+  temperature: 32,
+  humidity: 78,
+  rainfall: 45.2,
+  windSpeed: 28,
+  condition: "Heavy Rain",
+  area: "Bihar - Patna",
+  updatedAt: "2026-02-26 14:30",
+}
+
+export const areas = [
+  "Bihar - Patna",
+  "Assam - Guwahati",
+  "Odisha - Bhubaneswar",
+  "Maharashtra - Mumbai",
+  "Gujarat - Surat",
+  "Tamil Nadu - Chennai",
+  "Kerala - Kochi",
+  "Uttar Pradesh - Lucknow",
+  "West Bengal - Kolkata",
+  "Karnataka - Bangalore",
+  "Rajasthan - Jaipur",
+  "Andhra Pradesh - Hyderabad",
+]
