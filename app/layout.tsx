@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import { ClerkProvider } from '@clerk/nextjs'
 import { Analytics } from '@vercel/analytics/next'
+import { ClerkWarningSuppressor } from '@/components/clerk-warning-suppressor'
 import './globals.css'
 
 const _geist = Geist({ subsets: ["latin"] });
@@ -36,9 +37,12 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <ClerkProvider>
-      <html lang="en">
+    <ClerkProvider
+      afterSignOutUrl="/login"
+    >
+      <html lang="en" suppressHydrationWarning>
         <body className="font-sans antialiased">
+          <ClerkWarningSuppressor />
           {children}
           <Analytics />
         </body>
