@@ -40,8 +40,8 @@ export default function RootLayout({
     <ClerkProvider
       afterSignOutUrl="/login"
     >
-      <html lang="en" suppressHydrationWarning>
-        <body className="font-sans antialiased">
+      <html lang="en">
+        <body className="font-sans antialiased" suppressHydrationWarning>
           <ClerkWarningSuppressor />
           {children}
           <Analytics />
