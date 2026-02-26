@@ -9,6 +9,11 @@ import { ShelterTable } from "@/components/dashboard/shelter-table"
 import { QuickAlerts } from "@/components/dashboard/quick-alerts"
 import { ActionPlan } from "@/components/dashboard/action-plan"
 import { WhatIfSimulation } from "@/components/dashboard/what-if-simulation"
+import { useAlerts } from "@/hooks/useAlerts"
+import { useResources } from "@/hooks/useResources"
+import { useShelters } from "@/hooks/useShelters"
+import { useActionPlans } from "@/hooks/useActionPlans"
+import { useRiskAssessment } from "@/hooks/useRiskAssessment"
 import {
   initialResources,
   initialShelters,
@@ -21,7 +26,13 @@ import type { Resource, ActionStep } from "@/lib/dashboard-store"
 export default function DashboardPage() {
   const { t, alerts, setAlerts } = useDashboard()
 
-  const [resources, setResources] = useState<Resource[]>(initialResources)
+  // Fetch live data from APIs
+  const { data: allAlerts, loading: alertsLoading } = useAlerts('active')
+  const { data: resources, loading: resourcesLoading } = useResources()
+  const { data: shelters, loading: sheltersLoading } = useShelters()
+  const { data: actionPlans, loading: plansLoading } = useActionPlans('in_progress')
+  const { data: riskAssessments } = useRiskAssessment()
+
   const [actionSteps, setActionSteps] = useState<ActionStep[]>(initialActionPlan)
   const [simulationPercentage, setSimulationPercentage] = useState(20)
   const [selectedState, setSelectedState] = useState<string | null>("Bihar")
@@ -65,11 +76,18 @@ export default function DashboardPage() {
     setActionSteps((prev) => prev.map((s) => ({ ...s, completed: true })))
   }, [])
 
-  const safeZones = stateRisks.filter((s) => s.riskLevel === "low").length
-  const highRiskZones = stateRisks.filter(
-    (s) => s.riskLevel === "high" || s.riskLevel === "critical"
-  ).length
-  const totalZones = stateRisks.length
+  // Calculate statistics from live data
+  const safeZones = Array.isArray(riskAssessments)
+    ? riskAssessments.filter((r) => r.risk_level === "low").length
+    : stateRisks.filter((s) => s.riskLevel === "low").length
+  
+  const highRiskZones = Array.isArray(riskAssessments)
+    ? riskAssessments.filter((r) => r.risk_level === "high" || r.risk_level === "critical").length
+    : stateRisks.filter((s) => s.riskLevel === "high" || s.riskLevel === "critical").length
+  
+  const totalZones = Array.isArray(riskAssessments)
+    ? riskAssessments.length
+    : stateRisks.length
 
   return (
     <div className="flex gap-4">
@@ -93,11 +111,11 @@ export default function DashboardPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <ResourcePanel
-            resources={resources}
+            resources={(resources as Resource[] | null) || initialResources}
             onAutoOptimize={handleAutoOptimize}
             t={t}
           />
-          <ShelterTable shelters={initialShelters} t={t} />
+          <ShelterTable shelters={shelters || initialShelters} t={t} />
           <ActionPlan
             steps={actionSteps}
             onToggleStep={handleToggleStep}
