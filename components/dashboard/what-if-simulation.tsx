@@ -77,8 +77,8 @@ export function WhatIfSimulation({
       </div>
 
       {/* Chart */}
-      <div className="h-[150px] -mx-2">
-        <ResponsiveContainer width="100%" height="100%">
+      <div className="-mx-2" style={{ width: "calc(100% + 16px)", height: 150 }}>
+        <ResponsiveContainer width="100%" height={150} minWidth={100} minHeight={100}>
           <AreaChart data={adjustedData}>
             <defs>
               <linearGradient id="currentGrad" x1="0" y1="0" x2="0" y2="1">
