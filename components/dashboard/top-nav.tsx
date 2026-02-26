@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useRef, useEffect } from "react"
+import { useClerk } from "@clerk/nextjs"
 import {
   Search,
   Globe,
@@ -9,9 +10,11 @@ import {
   Menu,
   Shield,
   X,
+  LogOut,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { Alert } from "@/lib/dashboard-store"
+import { User } from "@clerk/nextjs/server"
 
 interface TopNavProps {
   language: string
@@ -21,6 +24,7 @@ interface TopNavProps {
   onMarkAlertRead: (id: string) => void
   onSidebarToggle: () => void
   t: Record<string, string>
+  user?: User | null
 }
 
 const languages = [
@@ -37,12 +41,16 @@ export function TopNav({
   onMarkAlertRead,
   onSidebarToggle,
   t,
+  user,
 }: TopNavProps) {
+  const { signOut } = useClerk()
   const [searchQuery, setSearchQuery] = useState("")
   const [showLangDropdown, setShowLangDropdown] = useState(false)
   const [showNotifications, setShowNotifications] = useState(false)
+  const [showUserMenu, setShowUserMenu] = useState(false)
   const langRef = useRef<HTMLDivElement>(null)
   const notifRef = useRef<HTMLDivElement>(null)
+  const userRef = useRef<HTMLDivElement>(null)
   const unreadCount = alerts.filter((a) => !a.read).length
 
   useEffect(() => {
@@ -52,6 +60,9 @@ export function TopNav({
       }
       if (notifRef.current && !notifRef.current.contains(e.target as Node)) {
         setShowNotifications(false)
+      }
+      if (userRef.current && !userRef.current.contains(e.target as Node)) {
+        setShowUserMenu(false)
       }
     }
     document.addEventListener("mousedown", handleClickOutside)
@@ -187,6 +198,41 @@ export function TopNav({
           <Shield className="w-4 h-4 text-primary" />
           <span>{t.commandCenter}</span>
         </button>
+
+        {/* User Menu */}
+        {user && (
+          <div ref={userRef} className="relative">
+            <button
+              onClick={() => setShowUserMenu(!showUserMenu)}
+              className="flex items-center gap-2 px-3 py-2 rounded-lg bg-secondary text-sm text-foreground border border-border hover:bg-muted transition-colors"
+            >
+              {user.imageUrl && (
+                <img 
+                  src={user.imageUrl} 
+                  alt={user.firstName || 'User'} 
+                  className="w-6 h-6 rounded-full"
+                />
+              )}
+              <span className="hidden sm:inline">{user.firstName || 'User'}</span>
+              <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />
+            </button>
+            {showUserMenu && (
+              <div className="absolute right-0 top-full mt-1 w-48 bg-card border border-border rounded-lg shadow-xl z-50 py-1">
+                <div className="px-4 py-2 border-b border-border">
+                  <p className="text-sm font-semibold text-foreground">{user.firstName} {user.lastName}</p>
+                  <p className="text-xs text-muted-foreground">{user.primaryEmailAddress?.emailAddress}</p>
+                </div>
+                <button
+                  onClick={() => signOut({ redirectUrl: '/login' })}
+                  className="w-full flex items-center gap-2 px-4 py-2 text-sm text-left text-destructive hover:bg-destructive/10 transition-colors"
+                >
+                  <LogOut className="w-4 h-4" />
+                  Sign Out
+                </button>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </header>
   )

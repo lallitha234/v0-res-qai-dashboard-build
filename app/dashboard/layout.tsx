@@ -1,6 +1,7 @@
-"use client"
+'use client'
 
 import { useState, useEffect, useCallback, createContext, useContext } from "react"
+import { useUser } from "@clerk/nextjs"
 import { Sidebar } from "@/components/dashboard/sidebar"
 import { TopNav } from "@/components/dashboard/top-nav"
 import { translations, initialAlerts } from "@/lib/dashboard-store"
@@ -25,6 +26,7 @@ export function useDashboard() {
 }
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+  const { user } = useUser()
   const [language, setLanguage] = useState("en")
   const [isOnline, setIsOnline] = useState(true)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
@@ -83,6 +85,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             onMarkAlertRead={handleMarkAlertRead}
             onSidebarToggle={() => setMobileSidebarOpen(!mobileSidebarOpen)}
             t={t}
+            user={user}
           />
 
           {/* Offline Banner */}
